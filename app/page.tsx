@@ -22,23 +22,22 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
-      <h1>Bienvenue sur CyberQuiz</h1>
+  <div>
+    <h1>Bienvenue sur CyberQuiz</h1>
 
-      {question ? (
-        <Card className="max-w-xl mx-auto mt-6">
-          <CardHeader>
-            <CardTitle>Question</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{question.texte}</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <p>Chargement de la question...</p>
-      )}
+   {question ? (
+  <Card className="max-w-xl mx-auto mt-6">
+    <CardHeader>
+      <CardTitle>Question</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p>{question.texte}</p>
+    </CardContent>
+  </Card>
+) : (
+  <p>Chargement de la question...</p>
+)}
 
-    </div>
+  </div>
   );
-
 }
