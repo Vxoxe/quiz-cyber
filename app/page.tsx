@@ -7,9 +7,16 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { text } from "stream/consumers";
+
 
 export default function Home() {
-  const [question, setQuestion] = useState<any>(null);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [explication, setExplication] = useState("");
+  const [afficherExplication, setAfficherExplication] = useState(false);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const question = questions[questionIndex];
+
 
   useEffect(() => {
     async function fetchQuestion() {
@@ -32,7 +39,7 @@ export default function Home() {
       if (error) {
         console.error("Erreur Supabase :", error);
       } else {
-        setQuestion(data?.[0]); // On prend la première question du tableau
+        setQuestions(data || []); // On prend la première question du tableau
       }
     }
 
@@ -40,12 +47,34 @@ export default function Home() {
   }, []);
 
   function handleClick(reponse: any) {
-    if (reponse.est_correcte) {
-      alert("Bonne réponse !");
-    } else {
-      alert("Mauvaise réponse.");
-    }
+    if (!question || afficherExplication) return;
+
+    const estBonneReponse = reponse.est_correcte;
+
+    const message = estBonneReponse
+      ? "Bonne réponse !"
+      : "Mauvaise réponse.";
+
+    const explicationTexte = question.explication || message;
+
+    setExplication(explicationTexte);
+    setAfficherExplication(true);
+
+    setTimeout(() => {
+      setAfficherExplication(true);
+      setExplication("");
+      setQuestionIndex((prev) => prev + 1);
+    }, 3000);
   }
+
+if (!question) {
+  return (
+    <div className="text-center mt-10">
+      <h2 className="text-2xl font-bold">Quiz terminé !</h2>
+      <p className="mt-4 text-muted-foreground">Merci d’avoir participé.</p>
+    </div>
+  );
+}
 
   return (
     <div>
@@ -56,7 +85,7 @@ export default function Home() {
         </AlertDescription>
       </Alert>
 
-      {question ? (
+     {questions.length > 0 ? (
         <Card className="max-w-4xl mx-auto mt-6">
           <div className="flex">
             {/* Colonne gauche : image + crédit */}
@@ -94,7 +123,7 @@ export default function Home() {
               )}
             </div>
 
-           
+
             <div className="w-1/2 p-4">
               <CardHeader className="p-0 mb-4">
                 <CardTitle>Question</CardTitle>
@@ -107,10 +136,19 @@ export default function Home() {
                     onClick={() => handleClick(reponse)}
                     className="w-full justify-start mt-2"
                     variant="outline"
+                    disabled={afficherExplication}
                   >
                     {reponse.texte}
                   </Button>
                 ))}
+
+                {afficherExplication && (
+                  <Alert className="mt-6 bg-yellow-50 border-yellow-300 text-yellow-800">
+                    <AlertTitle>Explication</AlertTitle>
+                    <AlertDescription>{explication}</AlertDescription>
+                  </Alert>
+                )}
+
               </CardContent>
             </div>
           </div>
